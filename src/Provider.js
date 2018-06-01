@@ -1,11 +1,11 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { InteractionManager } from 'react-native';
 
 const nullElement = {
   id: null,
   content: null,
-  next: () => { },
+  next: () => {},
   placement: null,
 };
 
@@ -22,7 +22,7 @@ class WalkThroughProvider extends Component {
 
   updateElement = nextElement => {
     this.setState(setNext(nextElement));
-  }
+  };
 
   render() {
     return (
@@ -45,7 +45,7 @@ class WalkThroughProvider extends Component {
 }
 
 WalkThroughProvider.propTypes = {
-  children: PropTypes.element,
+  children: PropTypes.element.isRequired,
 };
 
 export default WalkThroughProvider;

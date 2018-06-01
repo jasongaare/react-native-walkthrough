@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Platform } from 'react-native';
 
 import { WalkthroughContext } from './Provider';
 import Tooltip from './Tooltip';
@@ -11,25 +10,23 @@ const WalkthroughElement = props => {
 
   return (
     <WalkthroughContext.Consumer>
-      {
-        ({ currentElement, setElement, nullElement }) => (
-          <Tooltip
-            isVisible={elementId === currentElement.id}
-            onElementPress={() => {
-              currentElement.next(setElement, props.onPress);
-            }}
-            onElementLongPress={() => {
-              currentElement.next(setElement, props.onLongPress);
-            }}
-            onClose={() => setElement(nullElement)}
-            content={currentElement.content}
-            animated={Platform.OS === 'ios'}
-            placement={currentElement.placement || 'auto'}
-          >
-            {children}
-          </Tooltip>
-        )
-      }
+      {({ currentElement, setElement, nullElement }) => (
+        <Tooltip
+          isVisible={elementId === currentElement.id}
+          onElementPress={() => {
+            currentElement.next(setElement, props.onPress);
+          }}
+          onElementLongPress={() => {
+            currentElement.next(setElement, props.onLongPress);
+          }}
+          onClose={() => setElement(nullElement)}
+          content={currentElement.content}
+          placement={currentElement.placement || 'auto'}
+          animated
+        >
+          {children}
+        </Tooltip>
+      )}
     </WalkthroughContext.Consumer>
   );
 };
@@ -40,7 +37,7 @@ WalkthroughElement.defaultProps = {
 };
 
 WalkthroughElement.propTypes = {
-  children: PropTypes.element,
+  children: PropTypes.element.isRequired,
   id: PropTypes.string.isRequired,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
