@@ -1,21 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { InteractionManager } from 'react-native';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { InteractionManager } from "react-native";
 
 const nullElement = {
   id: null,
   content: null,
   next: () => {},
-  placement: null,
+  placement: null
 };
 
 const setNext = element => {
   return {
-    currentElement: element,
+    currentElement: element
   };
 };
 
-export const WalkthroughContext = React.createReactContext(nullElement);
+export const WalkthroughContext = React.createContext(nullElement);
 
 class WalkThroughProvider extends Component {
   state = { currentElement: nullElement };
@@ -35,7 +35,7 @@ class WalkThroughProvider extends Component {
             });
           },
           currentElement: this.state.currentElement,
-          nullElement,
+          nullElement
         }}
       >
         {this.props.children}
@@ -45,7 +45,7 @@ class WalkThroughProvider extends Component {
 }
 
 WalkThroughProvider.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.element.isRequired
 };
 
 export default WalkThroughProvider;

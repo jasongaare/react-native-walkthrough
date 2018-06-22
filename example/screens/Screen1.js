@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { WalkthroughElement, WalkthroughContext } from 'react-native-walkthrough';
 
 class Screen1 extends Component {
   constructor() {
@@ -21,28 +22,59 @@ class Screen1 extends Component {
 
     return (
       <View style={[styles.container, { backgroundColor }]}>
-        <Text style={[styles.welcomeText, { color: textColor }]}>{'Walkthrough\nExample App'}</Text>
-        <TouchableOpacity>
-          <View style={styles.startButton}>
-            <Text style={styles.startButtonText}>Start Walkthrough</Text>
-          </View>
-        </TouchableOpacity>
+        <Text style={[styles.welcomeText, { color: textColor }]}>
+          {'Walkthrough\nExample App'}
+        </Text>
+
+        <WalkthroughContext>
+          {({ setElement }) => (
+            <TouchableOpacity
+              onPress={() => {
+                setElement({
+                  id: 'change-bg',
+                  content: <Text>
+                    {'Touch the name of a project\non any card to get started'}
+                           </Text>,
+                  next: (setElement, setNull) => setNull(),
+                  placement: 'bottom',
+                });
+              }}
+            >
+              <View style={styles.startButton}>
+                <Text style={styles.startButtonText}>
+                  {'Start Walkthrough'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </WalkthroughContext>
+
         <View style={styles.footer}>
-          <TouchableOpacity
-            activeOpacity={1}
-            style={styles.footerButton}
-            onPress={() => this.setState({ backgroundColor: this.randomColor() })}
-          >
-            <Text style={styles.footerButtonText}>{'Change\nBackground Color'}</Text>
-          </TouchableOpacity>
+          <WalkthroughElement id="change-bg">
+            <TouchableOpacity
+              activeOpacity={1}
+              style={styles.footerButton}
+              onPress={() => this.setState({ backgroundColor: this.randomColor() })}
+            >
+              <Text style={styles.footerButtonText}>
+                {'Change\nBackground Color'}
+              </Text>
+            </TouchableOpacity>
+          </WalkthroughElement>
+
           <View style={styles.divider} />
-          <TouchableOpacity
-            activeOpacity={1}
-            style={styles.footerButton}
-            onPress={() => this.setState({ textColor: this.randomColor() })}
-          >
-            <Text style={styles.footerButtonText}>{'Change\nText Color'}</Text>
-          </TouchableOpacity>
+
+          <WalkthroughElement id="change-text">
+            <TouchableOpacity
+              activeOpacity={1}
+              style={styles.footerButton}
+              onPress={() => this.setState({ textColor: this.randomColor() })}
+            >
+              <Text style={styles.footerButtonText}>
+                {'Change\nText Color'}
+              </Text>
+            </TouchableOpacity>
+          </WalkthroughElement>
         </View>
       </View>
     );
@@ -72,14 +104,14 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: 'row',
-    width: '90%',
+    width: 300,
     backgroundColor: '#ddd',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#bbb',
   },
   footerButton: {
-    flex: 1,
+    width: 150,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
