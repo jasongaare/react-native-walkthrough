@@ -26,7 +26,7 @@ class Screen1 extends Component {
           {'Walkthrough\nExample App'}
         </Text>
 
-        <WalkthroughContext>
+        <WalkthroughContext.Consumer>
           {({ setElement }) => (
             <TouchableOpacity
               onPress={() => {
@@ -36,29 +36,30 @@ class Screen1 extends Component {
                     {'Touch the name of a project\non any card to get started'}
                            </Text>,
                   next: (setElement, setNull) => setNull(),
-                  placement: 'bottom',
+                  placement: 'top',
                 });
               }}
             >
               <View style={styles.startButton}>
                 <Text style={styles.startButtonText}>
-                  {'Start Walkthrough'}
+                  {'Start Wasdfasdfalkthrough'}
                 </Text>
               </View>
             </TouchableOpacity>
           )}
-        </WalkthroughContext>
+        </WalkthroughContext.Consumer>
 
         <View style={styles.footer}>
           <WalkthroughElement id="change-bg">
             <TouchableOpacity
               activeOpacity={1}
-              style={styles.footerButton}
               onPress={() => this.setState({ backgroundColor: this.randomColor() })}
             >
-              <Text style={styles.footerButtonText}>
-                {'Change\nBackground Color'}
-              </Text>
+              <View style={styles.footerButton}>
+                <Text style={styles.footerButtonText}>
+                  {'Change\nBackground Color'}
+                </Text>
+              </View>
             </TouchableOpacity>
           </WalkthroughElement>
 
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
+    backgroundColor: '#ddd',
   },
   footerButtonText: {
     color: 'black',

@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import { WalkthroughContext } from './Provider';
-import Tooltip from './Tooltip';
+import { WalkthroughContext } from "./Provider";
+import Tooltip from "react-native-walkthrough-tooltip";
 
 const WalkthroughElement = props => {
   const children = { ...props.children };
@@ -21,7 +21,7 @@ const WalkthroughElement = props => {
           }}
           onClose={() => setElement(nullElement)}
           content={currentElement.content}
-          placement={currentElement.placement || 'auto'}
+          placement={currentElement.placement || "auto"}
           animated
         >
           {children}
@@ -33,14 +33,14 @@ const WalkthroughElement = props => {
 
 WalkthroughElement.defaultProps = {
   onPress: null,
-  onLongPress: null,
+  onLongPress: null
 };
 
 WalkthroughElement.propTypes = {
   children: PropTypes.element.isRequired,
   id: PropTypes.string.isRequired,
   onPress: PropTypes.func,
-  onLongPress: PropTypes.func,
+  onLongPress: PropTypes.func
 };
 
 export default WalkthroughElement;
