@@ -1,5 +1,4 @@
-import WalkthroughElement from "./src/Element";
-import WalkthroughProvider from "./src/Provider";
-import { WalkthroughContext } from "./src/Provider";
+import WalkthroughElement from './src/WalkthroughElement';
+import WalkthroughProvider, {startWalkthrough} from './src/WalkthroughProvider';
 
-export { WalkthroughContext, WalkthroughElement, WalkthroughProvider };
+export {startWalkthrough, WalkthroughElement, WalkthroughProvider};
