@@ -5,30 +5,31 @@ import ContextWrapper from './ContextWrapper';
 
 const wrapperRef = React.createRef();
 
-const WalkthroughProvider = ({ children }) => (
+const WalkthroughProvider = ({children}) => (
   <ContextWrapper ref={wrapperRef}>{children}</ContextWrapper>
 );
 
-const goToWalkthroughElement = (element) => {
-  const { current: wrapper } = wrapperRef;
+const goToWalkthroughElement = element => {
+  const {current: wrapper} = wrapperRef;
 
   if (wrapper && typeof wrapper.goToElement === 'function') {
     wrapper.goToElement(element);
   }
 };
 
-const setWalkthroughGuide = (guide) => {
-  const { current: wrapper } = wrapperRef;
+const setWalkthroughGuide = (guide, setGuide) => {
+  const {current: wrapper} = wrapperRef;
 
   if (wrapper && typeof wrapper.setElement === 'function') {
-    wrapper.setGuide(guide);
+    wrapper.setGuide(guide, setGuide);
   }
 };
 
-const startWalkthrough = (walkthrough) => {
+const startWalkthrough = walkthrough => {
   if (Array.isArray(walkthrough)) {
-    setWalkthroughGuide(walkthrough);
-    goToWalkthroughElement(walkthrough[0]);
+    setWalkthroughGuide(walkthrough, () => {
+      goToWalkthroughElement(walkthrough[0]);
+    });
   } else {
     console.warn(
       '[walkthrough] non-Array argument provided to startWalkthrough',
@@ -40,5 +41,5 @@ WalkthroughProvider.propTypes = {
   children: PropTypes.element,
 };
 
-export { startWalkthrough };
+export {startWalkthrough};
 export default WalkthroughProvider;

@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { InteractionManager } from 'react-native';
-import EventEmitter from '../../EventEmitter';
+import {InteractionManager} from 'react-native';
+// import EventEmitter from '../../EventEmitter';
 
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
+const HOT_SEC = 350;
 
 const nullElement = {
   id: null,
@@ -11,13 +12,13 @@ const nullElement = {
   placement: null,
 };
 
-const safeSetGuide = (element) => {
+const safeSetGuide = element => {
   return {
     currentGuide: element,
   };
 };
 
-const safeSetElement = (element) => {
+const safeSetElement = element => {
   return {
     currentElement: element,
   };
@@ -29,56 +30,62 @@ class ContextWrapper extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { currentElement: nullElement, currentGuide: [] };
+    this.state = {currentElement: nullElement, currentGuide: []};
   }
 
   getCurrentElementIndex = () =>
     this.state.currentGuide.findIndex(
-      (element) => element.id === this.state.currentElement.id,
+      element => element.id === this.state.currentElement.id,
     );
 
-  setElement = (element) => {
+  setElement = element => {
     if (element.id !== this.state.currentElement.id) {
       // clear previous element
       this.setState(safeSetElement(nullElement));
 
-      // after interactions, set current element
+      // after interactions and a hot sec, set current element
       InteractionManager.runAfterInteractions(() => {
-        this.setState(safeSetElement(element));
+        setTimeout(() => {
+          this.setState(safeSetElement(element));
+        }, HOT_SEC);
       });
     }
   };
 
-  setGuide = (guide) => this.setState(safeSetGuide(guide));
+  setGuide = (guide, callback = () => {}) =>
+    this.setState(safeSetGuide(guide), callback);
 
   setNull = () => this.setState(safeSetElement(nullElement));
 
   clearGuide = () => this.setState(safeSetGuide([]));
 
-  waitForTrigger = (element) => {
+  waitForTrigger = element => {
     const waitStart = Date.now();
+    const triggerGuide = JSON.stringify(this.state.currentGuide);
+
     this.setNull();
 
-    EventEmitter.once(element.triggerEvent, () => {
-      const waitEnd = Date.now();
+    // TODO
+    // EventEmitter.once(element.triggerEvent, () => {
+    //   const waitEnd = Date.now();
+    //   const currentGuide = JSON.stringify(this.state.currentGuide);
 
-      // TODO: check if guide is same as when listener was added
+    //   if (waitEnd - waitStart >= WAIT_NO_MORE_TIMEOUT) {
+    //     this.clearGuide();
+    //   } else if (triggerGuide === currentGuide) {
+    //     // only do action if we are still in the same guide that requested the element
+    //     this.setElement(element);
+    //   }
+    // });
+  };
 
-      if (waitEnd - waitStart < WAIT_NO_MORE_TIMEOUT) {
-        this.setElement(element);
-      } else {
-        this.clearGuide();
-      }
-    });
-  }
-
-  goToElement = (element) => {
+  goToElement = element => {
     if (element.triggerEvent) {
       this.waitForTrigger(element);
     } else {
       this.setElement(element);
     }
-  } 
+  };
 
   goToNext = () => {
     const nextIndex = this.getCurrentElementIndex() + 1;
@@ -97,8 +104,7 @@ class ContextWrapper extends Component {
         value={{
           ...this.state,
           goToNext: this.goToNext,
-        }}
-      >
+        }}>
         {this.props.children}
       </WalkthroughContext.Provider>
     );

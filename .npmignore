@@ -1,2 +1,2 @@
-## Do not publish example app
-/example
+.babelrc
+yarn.lock
