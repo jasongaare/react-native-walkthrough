@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {InteractionManager} from 'react-native';
-// import EventEmitter from '../../EventEmitter';
 
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
 const HOT_SEC = 350;
@@ -60,23 +59,24 @@ class ContextWrapper extends Component {
   clearGuide = () => this.setState(safeSetGuide([]));
 
   waitForTrigger = element => {
+    const {eventEmitter} = this.props;
+
     const waitStart = Date.now();
     const triggerGuide = JSON.stringify(this.state.currentGuide);
 
     this.setNull();
 
-    // TODO
-    // EventEmitter.once(element.triggerEvent, () => {
-    //   const waitEnd = Date.now();
-    //   const currentGuide = JSON.stringify(this.state.currentGuide);
+    eventEmitter.once(element.triggerEvent, () => {
+      const waitEnd = Date.now();
+      const currentGuide = JSON.stringify(this.state.currentGuide);
 
-    //   if (waitEnd - waitStart >= WAIT_NO_MORE_TIMEOUT) {
-    //     this.clearGuide();
-    //   } else if (triggerGuide === currentGuide) {
-    //     // only do action if we are still in the same guide that requested the element
-    //     this.setElement(element);
-    //   }
-    // });
+      if (waitEnd - waitStart >= WAIT_NO_MORE_TIMEOUT) {
+        this.clearGuide();
+      } else if (triggerGuide === currentGuide) {
+        // only do action if we are still in the same guide that requested the element
+        this.setElement(element);
+      }
+    });
   };
 
   goToElement = element => {
@@ -113,6 +113,7 @@ class ContextWrapper extends Component {
 
 ContextWrapper.propTypes = {
   children: PropTypes.element,
+  eventEmitter: PropTypes.object,
 };
 
 export default ContextWrapper;

@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import EventEmitter from 'events';
 
 import ContextWrapper from './ContextWrapper';
 
 const wrapperRef = React.createRef();
+const ee = new EventEmitter();
 
 const WalkthroughProvider = ({children}) => (
-  <ContextWrapper ref={wrapperRef}>{children}</ContextWrapper>
+  <ContextWrapper ref={wrapperRef} eventEmitter={ee}>
+    {children}
+  </ContextWrapper>
 );
 
 const goToWalkthroughElement = element => {
@@ -32,14 +36,16 @@ const startWalkthrough = walkthrough => {
     });
   } else {
     console.warn(
-      '[walkthrough] non-Array argument provided to startWalkthrough',
+      '[react-native-walkthrough] non-Array argument provided to startWalkthrough',
     );
   }
 };
+
+const dispatchWalkthroughEvent = event => ee.emit(event);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,
 };
 
-export {startWalkthrough};
+export {dispatchWalkthroughEvent, startWalkthrough};
 export default WalkthroughProvider;

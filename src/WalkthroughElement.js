@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {WalkthroughContext} from './ContextWrapper';
 import Tooltip, {
   TooltipChildrenContext,
 } from 'react-native-walkthrough-tooltip';
+
+import {WalkthroughContext} from './ContextWrapper';
 
 const WalkthroughElement = props => {
   const elementId = props.id;

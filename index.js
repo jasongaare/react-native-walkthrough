@@ -1,4 +1,12 @@
 import WalkthroughElement from './src/WalkthroughElement';
-import WalkthroughProvider, {startWalkthrough} from './src/WalkthroughProvider';
+import WalkthroughProvider, {
+  dispatchWalkthroughEvent,
+  startWalkthrough,
+} from './src/WalkthroughProvider';
 
-export {startWalkthrough, WalkthroughElement, WalkthroughProvider};
+export {
+  dispatchWalkthroughEvent,
+  startWalkthrough,
+  WalkthroughElement,
+  WalkthroughProvider,
+};
