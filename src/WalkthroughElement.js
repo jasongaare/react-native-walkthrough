@@ -20,13 +20,21 @@ const WalkthroughElement = props => {
           isVisible: elementId === currentElement.id,
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
-          onClose: goToNext,
         };
 
         const tooltipProps = {
           ...defaultTooltipProps,
           ...currentElement.tooltipProps,
           ...props.tooltipProps,
+          onClose: () => {
+              goToNext()
+              if (currentElement.tooltipProps && currentElement.tooltipProps.onClose) {
+                  currentElement.tooltipProps.onClose()
+              }
+              if (props.tooltipProps && props.tooltipProps.onClose) {
+                  props.tooltipProps.onClose()
+              }
+          }
         };
 
         return (
