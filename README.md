@@ -20,6 +20,7 @@ React Native Walkthrough exports the following:
   - [`WalkthroughElement component`](#walkthroughelement)
   - [`startWalkthrough` function](#startwalkthrough)
   - [`dispatchWalkthroughEvent` function](#dispatchwalkthroughevent)
+  - [`goToWalkthroughElementWithId` function](#gotowalkthroughelementwithid)
     
 
 #### `WalkthroughProvider`
@@ -89,6 +90,22 @@ render (
     ...
   </React.Fragment>
 )
+```
+
+#### `goToWalkthroughElementWithId`
+
+Function that accepts a string element id. Finds the first element in the current walkthrough with a matching `id` and sets that element as the current element.  
+
+```js
+import { goToWalkthroughElementWithId } from 'react-native-walkthrough';
+
+
+<TouchableOpacity
+  onPress={() => goToWalkthroughElementWithId('step-3')}
+>
+  <Text>{"Skip to next step"}</Text>
+</TouchableOpacity>
+
 ```
 
 ### Creating a Walkthrough Guide
