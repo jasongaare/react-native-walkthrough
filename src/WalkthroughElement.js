@@ -4,7 +4,7 @@ import Tooltip, {
   TooltipChildrenContext,
 } from 'react-native-walkthrough-tooltip';
 
-import {WalkthroughContext} from './ContextWrapper';
+import { WalkthroughContext } from './ContextWrapper';
 
 const WalkthroughElement = props => {
   const elementId = props.id;
@@ -14,13 +14,18 @@ const WalkthroughElement = props => {
 
   return (
     <WalkthroughContext.Consumer>
-      {({currentElement, goToNext}) => {
+      {({ currentElement, goToNext }) => {
         const defaultTooltipProps = {
           useInteractionManager: true,
           isVisible: elementId === currentElement.id,
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
-          onClose: goToNext,
+          onClose: () => {
+            if (typeof currentElement.onClose === 'function') {
+              currentElement.onClose();
+            }
+            goToNext();
+          },
         };
 
         const tooltipProps = {
@@ -36,8 +41,8 @@ const WalkthroughElement = props => {
                 {props.children}
               </TooltipChildrenContext.Consumer>
             ) : (
-              props.children
-            )}
+                props.children
+              )}
           </Tooltip>
         );
       }}
