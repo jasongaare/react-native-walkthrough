@@ -4,6 +4,8 @@ import WalkthroughProvider, {
   startWalkthrough,
 } from './WalkthroughProvider';
 
+export * from './ContextWrapper';
+
 export {
   dispatchWalkthroughEvent,
   startWalkthrough,
