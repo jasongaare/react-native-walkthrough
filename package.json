@@ -2,7 +2,8 @@
   "name": "react-native-walkthrough",
   "version": "0.0.2",
   "description": "A lightweight walkthrough library for React Native utilizing React's Context API",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsdx build --format cjs,esm,umd --name react-native-walkthrough",
     "start": "tsdx watch  --format cjs,esm,umd",
