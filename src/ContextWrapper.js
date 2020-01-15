@@ -14,6 +14,7 @@ const nullElement = {
 const safeSetGuide = element => {
   return {
     currentGuide: element,
+    currentIndex: 0
   };
 };
 
@@ -29,26 +30,19 @@ class ContextWrapper extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {currentElement: nullElement, currentGuide: []};
+    this.state = {currentElement: nullElement, currentGuide: [], currentIndex: 0};
   }
 
-  getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(
-      element => element.id === this.state.currentElement.id,
-    );
-
   setElement = element => {
-    if (element.id !== this.state.currentElement.id) {
-      // clear previous element
-      this.setState(safeSetElement(nullElement));
+    // clear previous element
+    this.setState(safeSetElement(nullElement));
 
-      // after interactions and a hot sec, set current element
-      InteractionManager.runAfterInteractions(() => {
-        setTimeout(() => {
-          this.setState(safeSetElement(element));
-        }, HOT_SEC);
-      });
-    }
+    // after interactions and a hot sec, set current element
+    InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
+        this.setState(safeSetElement(element));
+      }, HOT_SEC);
+    });
   };
 
   setGuide = (guide, callback = () => {}) =>
@@ -91,6 +85,7 @@ class ContextWrapper extends Component {
     const nextIndex = this.getCurrentElementIndex() + 1;
 
     if (nextIndex < this.state.currentGuide.length) {
+      this.setState({ currentIndex: nextIndex });
       this.goToElement(this.state.currentGuide[nextIndex]);
     } else {
       this.setNull();
