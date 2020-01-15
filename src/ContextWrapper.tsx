@@ -34,7 +34,7 @@ class ContextWrapper extends Component {
 
   getCurrentElementIndex = () =>
     this.state.currentGuide.findIndex(
-      element => element.id === this.state.currentElement.id,
+      element => element.id === this.state.currentElement.id
     );
 
   setElement = element => {
@@ -104,7 +104,8 @@ class ContextWrapper extends Component {
         value={{
           ...this.state,
           goToNext: this.goToNext,
-        }}>
+        }}
+      >
         {this.props.children}
       </WalkthroughContext.Provider>
     );

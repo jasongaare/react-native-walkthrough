@@ -36,7 +36,7 @@ const startWalkthrough = walkthrough => {
     });
   } else {
     console.warn(
-      '[react-native-walkthrough] non-Array argument provided to startWalkthrough',
+      '[react-native-walkthrough] non-Array argument provided to startWalkthrough'
     );
   }
 };
