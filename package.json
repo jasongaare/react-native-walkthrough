@@ -21,7 +21,7 @@
   "homepage": "https://github.com/jasongaare/react-native-walkthrough#readme",
   "dependencies": {
     "events": "3.0.0",
-    "react-native-walkthrough-tooltip": "1.0.2"
+    "react-native-walkthrough-tooltip": "1.1.7"
   },
   "peerDependencies": {
     "react": "^16.4.1",

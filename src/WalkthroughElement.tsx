@@ -34,7 +34,6 @@ const WalkthroughElement: FunctionComponent<Props> = props => {
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
           onClose: goToNext,
-          useReactNativeModal: true,
         };
 
         const tooltipProps: TooltipProps = {
