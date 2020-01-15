@@ -1,8 +1,8 @@
-import WalkthroughElement from './src/WalkthroughElement';
+import WalkthroughElement from './WalkthroughElement';
 import WalkthroughProvider, {
   dispatchWalkthroughEvent,
   startWalkthrough,
-} from './src/WalkthroughProvider';
+} from './WalkthroughProvider';
 
 export {
   dispatchWalkthroughEvent,
