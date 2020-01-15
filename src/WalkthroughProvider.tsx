@@ -35,7 +35,7 @@ const startWalkthrough = (walkthrough: GuideType) => {
   }
 };
 
-const dispatchWalkthroughEvent = (event: string | number) => ee.emit(event);
+const dispatchWalkthroughEvent = (event: string | symbol) => ee.emit(event);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,

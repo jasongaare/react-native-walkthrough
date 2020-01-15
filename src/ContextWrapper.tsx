@@ -10,7 +10,7 @@ export type ElementType = {
   id: string;
   content: TooltipProps['content'];
   placement: TooltipProps['placement'];
-  triggerEvent?: string | number;
+  triggerEvent?: string | symbol;
   tooltipProps?: TooltipProps;
 };
 export type GuideType = ElementType[];
@@ -73,7 +73,7 @@ class ContextWrapper extends Component<Props, State> {
 
   clearGuide = () => this.setState(safeSetGuide([]));
 
-  waitForTrigger = (element: ElementType, triggerEvent: string | number) => {
+  waitForTrigger = (element: ElementType, triggerEvent: string | symbol) => {
     const {eventEmitter} = this.props;
 
     const waitStart = Date.now();
