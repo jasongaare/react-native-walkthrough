@@ -4,6 +4,8 @@
   "description": "A lightweight walkthrough library for React Native utilizing React's Context API",
   "main": "index.js",
   "scripts": {
+    "build": "tsdx build --format cjs,esm,umd --name react-native-walkthrough",
+    "start": "tsdx watch  --format cjs,esm,umd",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,8 +23,8 @@
     "react-native-walkthrough-tooltip": "1.0.2"
   },
   "peerDependencies": {
-    "react": "^16.3.0-alpha.1",
-    "react-native": "^0.54.0"
+    "react": "^16.4.1",
+    "react-native": "^0.56.0"
   },
   "devDependencies": {
     "@react-native-community/eslint-config": "0.0.6",
@@ -40,6 +42,7 @@
     "eslint-plugin-no-mixed-operators": "1.1.1",
     "eslint-plugin-react": "7.8.2",
     "eslint-plugin-react-native": "3.2.1",
+    "tsdx": "^0.12.3",
     "typescript": "^3.7.4"
   }
 }
