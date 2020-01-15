@@ -1,35 +1,29 @@
-import React from 'react';
+import React, {FunctionComponent} from 'react';
 import PropTypes from 'prop-types';
-import EventEmitter from 'events';
+import {EventEmitter} from 'events';
 
-import ContextWrapper from './ContextWrapper';
+import ContextWrapper, {ElementType, GuideType} from './ContextWrapper';
 
-const wrapperRef = React.createRef();
+const wrapperRef = React.createRef<ContextWrapper>();
 const ee = new EventEmitter();
 
-const WalkthroughProvider = ({children}) => (
+const WalkthroughProvider: FunctionComponent = ({children}) => (
   <ContextWrapper ref={wrapperRef} eventEmitter={ee}>
     {children}
   </ContextWrapper>
 );
 
-const goToWalkthroughElement = element => {
+const goToWalkthroughElement = (element: ElementType) => {
   const {current: wrapper} = wrapperRef;
-
-  if (wrapper && typeof wrapper.goToElement === 'function') {
-    wrapper.goToElement(element);
-  }
+  wrapper?.goToElement(element);
 };
 
-const setWalkthroughGuide = (guide, setGuide) => {
+const setWalkthroughGuide = (guide: GuideType, setGuide: () => void) => {
   const {current: wrapper} = wrapperRef;
-
-  if (wrapper && typeof wrapper.setElement === 'function') {
-    wrapper.setGuide(guide, setGuide);
-  }
+  wrapper?.setGuide(guide, setGuide);
 };
 
-const startWalkthrough = walkthrough => {
+const startWalkthrough = (walkthrough: GuideType) => {
   if (Array.isArray(walkthrough)) {
     setWalkthroughGuide(walkthrough, () => {
       goToWalkthroughElement(walkthrough[0]);
@@ -41,7 +35,7 @@ const startWalkthrough = walkthrough => {
   }
 };
 
-const dispatchWalkthroughEvent = event => ee.emit(event);
+const dispatchWalkthroughEvent = (event: string | number) => ee.emit(event);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,
