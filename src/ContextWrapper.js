@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { InteractionManager } from 'react-native';
 
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
-const HOT_SEC = 350;
+const HOT_SEC = 500;
 
 const nullElement = {
   id: null,
@@ -72,51 +71,52 @@ class ContextWrapper extends Component {
     },
   });
 
-  listenForPossibleOutcomes = (element) => {
+  listenForPossibleOutcomes = element => {
     const { eventEmitter } = this.props;
     const { possibleOutcomes } = element;
 
     if (possibleOutcomes) {
       if (!Array.isArray(possibleOutcomes)) {
         console.warn(
-          '[walkthrough] non-Array value provided to possibleOutcomes'
+          '[react-native-walkthrough] non-Array value provided to possibleOutcomes',
         );
       } else {
         this.setState(
           {
             currentPossibleOutcomes: possibleOutcomes.map(
-              this.addTimeoutCheckToOutcomeActions
+              this.addTimeoutCheckToOutcomeActions,
             ),
             outcomeListenerStartTimestamp: Date.now(),
           },
           () => {
             this.state.currentPossibleOutcomes.forEach(({ event, action }) =>
-              eventEmitter.once(event, action)
+              eventEmitter.once(event, action),
             );
-          }
+          },
         );
       }
     }
   };
 
+  setElementNull = () => this.setState(safeSetElement(nullElement));
+
   setElement = element => {
     if (element.id !== this.state.currentElement.id) {
       // clear previous element
-      this.setState(safeSetElement(nullElement));
+      this.setElementNull();
       this.clearCurrentPossibleOutcomes();
-      // after interactions and a hot sec, set current element
-      InteractionManager.runAfterInteractions(() => {
-        setTimeout(() => {
-          this.setState(safeSetElement(element));
-        }, HOT_SEC);
-      });
+
+      // after a hot sec, set current element
+      setTimeout(() => {
+        this.setState(safeSetElement(element));
+      }, HOT_SEC);
     }
   };
 
-  setGuide = (guide, callback = () => { }) =>
+  setGuide = (guide, callback = () => {}) => {
+    this.setElementNull();
     this.setState(safeSetGuide(guide), callback);
-
-  setNull = () => this.setState(safeSetElement(nullElement));
+  };
 
   waitForTrigger = element => {
     const { eventEmitter } = this.props;
@@ -124,7 +124,7 @@ class ContextWrapper extends Component {
     const waitStart = Date.now();
     const triggerGuide = JSON.stringify(this.state.currentGuide);
 
-    this.setNull();
+    this.setElementNull();
 
     eventEmitter.once(element.triggerEvent, () => {
       const waitEnd = Date.now();
@@ -149,7 +149,7 @@ class ContextWrapper extends Component {
 
   goToElementWithId = id => {
     const elementWithId = this.state.currentGuide.find(
-      element => element.id === id
+      element => element.id === id,
     );
 
     if (elementWithId) {
@@ -163,11 +163,11 @@ class ContextWrapper extends Component {
 
     if (currentElement.possibleOutcomes) {
       this.listenForPossibleOutcomes(currentElement);
-      this.setNull();
+      this.setElementNull();
     } else if (nextIndex < this.state.currentGuide.length) {
       this.goToElement(this.state.currentGuide[nextIndex]);
     } else {
-      this.setNull();
+      this.setElementNull();
       this.clearGuide();
     }
   };

@@ -21,10 +21,11 @@ const WalkthroughElement = props => {
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
           onClose: () => {
+            goToNext();
+
             if (typeof currentElement.onClose === 'function') {
               currentElement.onClose();
             }
-            goToNext();
           },
         };
 
@@ -41,8 +42,8 @@ const WalkthroughElement = props => {
                 {props.children}
               </TooltipChildrenContext.Consumer>
             ) : (
-                props.children
-              )}
+              props.children
+            )}
           </Tooltip>
         );
       }}

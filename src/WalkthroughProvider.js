@@ -29,11 +29,11 @@ const goToWalkthroughElement = element => {
   }
 };
 
-const setWalkthroughGuide = (guide, setGuide) => {
+const setWalkthroughGuide = (guide, callback) => {
   const { current: wrapper } = wrapperRef;
 
   if (wrapper && typeof wrapper.setElement === 'function') {
-    wrapper.setGuide(guide, setGuide);
+    wrapper.setGuide(guide, callback);
   }
 };
 
@@ -44,7 +44,7 @@ const startWalkthrough = walkthrough => {
     });
   } else {
     console.warn(
-      '[react-native-walkthrough] non-Array argument provided to startWalkthrough'
+      '[react-native-walkthrough] non-Array argument provided to startWalkthrough',
     );
   }
 };
@@ -52,17 +52,11 @@ const startWalkthrough = walkthrough => {
 const startWalkthroughAtElement = (walkthrough, elementId) => {
   if (Array.isArray(walkthrough)) {
     setWalkthroughGuide(walkthrough, () => {
-      const elementIndex = walkthrough.findIndex(
-        element => element.id === elementId
-      );
-
-      goToWalkthroughElement(
-        walkthrough[elementIndex !== -1 ? elementIndex : 0]
-      );
+      goToWalkthroughElementWithId(elementId);
     });
   } else {
     console.warn(
-      '[walkthrough] non-Array argument provided to startWalkthrough'
+      '[react-native-walkthrough] non-Array argument provided to startWalkthroughAtElement',
     );
   }
 };

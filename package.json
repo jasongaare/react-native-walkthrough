@@ -1,6 +1,6 @@
 {
   "name": "react-native-walkthrough",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A lightweight walkthrough library for React Native utilizing React's Context API",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "homepage": "https://github.com/jasongaare/react-native-walkthrough#readme",
   "dependencies": {
     "events": "3.0.0",
-    "react-native-walkthrough-tooltip": "1.1.2"
+    "react-native-walkthrough-tooltip": "1.1.7"
   },
   "peerDependencies": {
     "prop-types": "^15.6.1",
