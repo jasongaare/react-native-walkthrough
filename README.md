@@ -12,6 +12,12 @@ React Native Walkthrough is an app-wide walkthrough library, with a minimal foot
 yarn add react-native-walkthrough
 ```
 
+### Roadmap
+- [ ] Move library to Typescript (soon!)
+- [ ] add ability to pass external EventEmitter instance via props
+- [ ] add props for changing timeout durations
+- [ ] ???
+
 ### Basic Usage
 
 React Native Walkthrough exports the following:
@@ -152,10 +158,12 @@ export default [
 
 |Key|Type|Required|Description|
 |---|----|-----|----|
-|id|string|YES|id string that matches the corresponding WalkthroughElement|
 |content|function/Element| YES | This is the view displayed in the tooltip popover bubble |
+|id|string|YES|id string that matches the corresponding WalkthroughElement|
 |placement|string|NO | Determines placement of tooltip in relation to the element it is wrapping
-|triggerEvent|string|NO|string event id, this element will not appear until the triggerEvent is dispatched via `dispatchWalkthroughEvent`
+|possibleOutcomes|array|NO|An array of objects with keys (`event`, `action`) that creates event listeners for multiple events to provide the ability to have an outcome tree that responds to a user's actions (listens to events dispatched via `dispatchWalkthroughEvent`|
 |tooltipProps|object|NO|additional props to customize the tooltip functionality and style
+|triggerEvent|string|NO|string event id, this element will not appear until the triggerEvent is dispatched via `dispatchWalkthroughEvent`
+
 
 > To learn more about `placement` options and all the options for `tooltipProps` view the [`react-native-walkthrough-tooltip` README](https://github.com/jasongaare/react-native-walkthrough-tooltip#props)
