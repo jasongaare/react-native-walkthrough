@@ -7,25 +7,33 @@ import ContextWrapper from './ContextWrapper';
 const wrapperRef = React.createRef();
 const ee = new EventEmitter();
 
-const WalkthroughProvider = ({children}) => (
+const WalkthroughProvider = ({ children }) => (
   <ContextWrapper ref={wrapperRef} eventEmitter={ee}>
     {children}
   </ContextWrapper>
 );
 
+const goToWalkthroughElementWithId = id => {
+  const { current: wrapper } = wrapperRef;
+
+  if (wrapper && typeof wrapper.goToElementWithId === 'function') {
+    wrapper.goToElementWithId(id);
+  }
+};
+
 const goToWalkthroughElement = element => {
-  const {current: wrapper} = wrapperRef;
+  const { current: wrapper } = wrapperRef;
 
   if (wrapper && typeof wrapper.goToElement === 'function') {
     wrapper.goToElement(element);
   }
 };
 
-const setWalkthroughGuide = (guide, setGuide) => {
-  const {current: wrapper} = wrapperRef;
+const setWalkthroughGuide = (guide, callback) => {
+  const { current: wrapper } = wrapperRef;
 
   if (wrapper && typeof wrapper.setElement === 'function') {
-    wrapper.setGuide(guide, setGuide);
+    wrapper.setGuide(guide, callback);
   }
 };
 
@@ -41,11 +49,31 @@ const startWalkthrough = walkthrough => {
   }
 };
 
+const startWalkthroughAtElement = (walkthrough, elementId) => {
+  if (Array.isArray(walkthrough)) {
+    setWalkthroughGuide(walkthrough, () => {
+      goToWalkthroughElementWithId(elementId);
+    });
+  } else {
+    console.warn(
+      '[react-native-walkthrough] non-Array argument provided to startWalkthroughAtElement',
+    );
+  }
+};
+
 const dispatchWalkthroughEvent = event => ee.emit(event);
+
+const exitWalkthrough = () => startWalkthrough([{}]);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,
 };
 
-export {dispatchWalkthroughEvent, startWalkthrough};
+export {
+  dispatchWalkthroughEvent,
+  exitWalkthrough,
+  goToWalkthroughElementWithId,
+  startWalkthrough,
+  startWalkthroughAtElement,
+};
 export default WalkthroughProvider;
