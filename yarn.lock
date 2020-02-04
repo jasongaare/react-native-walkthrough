@@ -1914,10 +1914,10 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.10.2.tgz#984120fd4d16800e9a738208ab1fba422d23b5ab"
   integrity sha512-INBT1QEgtcCCgvccr5/86CfD71fw9EPmDxgiJX4I2Ddr6ZsV6iFXsuby+qWJPtmNuMY0zByTsG4468P7nHuNWA==
 
-react-native-walkthrough-tooltip@1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-native-walkthrough-tooltip/-/react-native-walkthrough-tooltip-1.1.2.tgz#246519815db9f574f6d62875c03a0b26f0b64002"
-  integrity sha512-kIA5x4kmMsFvuPYQH0BcGUFUGZlhRAfmlmyzvS3UdV6/TE2qYcRucj7/M6En+z8t7ovyZuri+iQr9cmLHVcoFQ==
+react-native-walkthrough-tooltip@1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/react-native-walkthrough-tooltip/-/react-native-walkthrough-tooltip-1.1.7.tgz#972ce320bee617cfe959690cec6d7239f5bbb52a"
+  integrity sha512-kgN6mokMUtAVTq1qJJjf4SAEujK+A4bZbpkMykoURpzRQuUU7UlHJ/7k8LA7DRTI3sg1Pn0qaDWxDZHgil6I3w==
   dependencies:
     prop-types "^15.6.1"
     react-fast-compare "^2.0.4"
