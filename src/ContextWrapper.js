@@ -38,11 +38,6 @@ class ContextWrapper extends Component {
     };
   }
 
-  getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(
-      (element) => element.id === this.state.currentElement.id
-    );
-
   clearGuide = () => this.setState(safeSetGuide([]));
 
   clearCurrentPossibleOutcomes = () => {
