@@ -13,6 +13,14 @@ const WalkthroughProvider: FunctionComponent = ({children}) => (
   </ContextWrapper>
 );
 
+const goToWalkthroughElementWithId = id => {
+  const {current: wrapper} = wrapperRef;
+
+  if (wrapper && typeof wrapper.goToElementWithId === 'function') {
+    wrapper.goToElementWithId(id);
+  }
+};
+
 const goToWalkthroughElement = (element: ElementType) => {
   const {current: wrapper} = wrapperRef;
   wrapper?.goToElement(element);
@@ -35,11 +43,31 @@ const startWalkthrough = (walkthrough: GuideType) => {
   }
 };
 
+const startWalkthroughAtElement = (walkthrough, elementId) => {
+  if (Array.isArray(walkthrough)) {
+    setWalkthroughGuide(walkthrough, () => {
+      goToWalkthroughElementWithId(elementId);
+    });
+  } else {
+    console.warn(
+      '[react-native-walkthrough] non-Array argument provided to startWalkthroughAtElement'
+    );
+  }
+};
+
 const dispatchWalkthroughEvent = (event: string | symbol) => ee.emit(event);
+
+const exitWalkthrough = () => startWalkthrough([{}]);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,
 };
 
-export {dispatchWalkthroughEvent, startWalkthrough};
+export {
+  dispatchWalkthroughEvent,
+  exitWalkthrough,
+  goToWalkthroughElementWithId,
+  startWalkthrough,
+  startWalkthroughAtElement,
+};
 export default WalkthroughProvider;

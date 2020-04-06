@@ -33,7 +33,13 @@ const WalkthroughElement: FunctionComponent<Props> = props => {
           isVisible: elementId === currentElement.id,
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
-          onClose: goToNext,
+          onClose: () => {
+            goToNext();
+
+            if (typeof currentElement.onClose === 'function') {
+              currentElement.onClose();
+            }
+          },
         };
 
         const tooltipProps: TooltipProps = {
