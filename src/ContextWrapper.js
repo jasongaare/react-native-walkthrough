@@ -75,21 +75,21 @@ class ContextWrapper extends Component {
     if (possibleOutcomes) {
       if (!Array.isArray(possibleOutcomes)) {
         console.warn(
-          '[react-native-walkthrough] non-Array value provided to possibleOutcomes'
+          '[react-native-walkthrough] non-Array value provided to possibleOutcomes',
         );
       } else {
         this.setState(
           {
             currentPossibleOutcomes: possibleOutcomes.map(
-              this.addTimeoutCheckToOutcomeActions
+              this.addTimeoutCheckToOutcomeActions,
             ),
             outcomeListenerStartTimestamp: Date.now(),
           },
           () => {
             this.state.currentPossibleOutcomes.forEach(({ event, action }) =>
-              eventEmitter.once(event, action)
+              eventEmitter.once(event, action),
             );
-          }
+          },
         );
       }
     }
@@ -144,7 +144,7 @@ class ContextWrapper extends Component {
 
   goToElementWithId = id => {
     const elementWithId = this.state.currentGuide.find(
-      element => element.id === id
+      element => element.id === id,
     );
 
     if (elementWithId) {
