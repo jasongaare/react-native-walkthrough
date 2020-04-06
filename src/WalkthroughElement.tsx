@@ -1,8 +1,5 @@
 import React, {FunctionComponent, ReactNode, ReactElement} from 'react';
-import Tooltip, {
-  TooltipChildrenContext,
-  TooltipProps,
-} from 'react-native-walkthrough-tooltip';
+import Tooltip, {TooltipChildrenContext, TooltipProps} from 'react-native-walkthrough-tooltip';
 
 import {WalkthroughContext} from './ContextWrapper';
 
@@ -22,8 +19,7 @@ type Props = {
 const WalkthroughElement: FunctionComponent<Props> = props => {
   const elementId = props.id;
 
-  const defaultPlacement =
-    React.Children.count(props.children) === 0 ? 'center' : 'top';
+  const defaultPlacement = React.Children.count(props.children) === 0 ? 'center' : 'top';
 
   return (
     <WalkthroughContext.Consumer>
@@ -35,10 +31,7 @@ const WalkthroughElement: FunctionComponent<Props> = props => {
           placement: currentElement.placement || defaultPlacement,
           onClose: () => {
             goToNext();
-
-            if (typeof currentElement.onClose === 'function') {
-              currentElement.onClose();
-            }
+            currentElement.onClose?.();
           },
         };
 
@@ -51,9 +44,7 @@ const WalkthroughElement: FunctionComponent<Props> = props => {
         return (
           <Tooltip {...tooltipProps}>
             {props.useTooltipChildContext ? (
-              <TooltipChildrenContext.Consumer>
-                {props.children}
-              </TooltipChildrenContext.Consumer>
+              <TooltipChildrenContext.Consumer>{props.children}</TooltipChildrenContext.Consumer>
             ) : (
               props.children
             )}

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from 'react';
 import PropTypes from 'prop-types';
 import {EventEmitter} from 'events';
 
-import ContextWrapper, {ElementType, GuideType} from './ContextWrapper';
+import ContextWrapper, {ElementType, GuideType, nullElement} from './ContextWrapper';
 
 const wrapperRef = React.createRef<ContextWrapper>();
 const ee = new EventEmitter();
@@ -13,12 +13,9 @@ const WalkthroughProvider: FunctionComponent = ({children}) => (
   </ContextWrapper>
 );
 
-const goToWalkthroughElementWithId = id => {
+const goToWalkthroughElementWithId = (id: string) => {
   const {current: wrapper} = wrapperRef;
-
-  if (wrapper && typeof wrapper.goToElementWithId === 'function') {
-    wrapper.goToElementWithId(id);
-  }
+  wrapper?.goToElementWithId(id);
 };
 
 const goToWalkthroughElement = (element: ElementType) => {
@@ -34,30 +31,26 @@ const setWalkthroughGuide = (guide: GuideType, setGuide: () => void) => {
 const startWalkthrough = (walkthrough: GuideType) => {
   if (Array.isArray(walkthrough)) {
     setWalkthroughGuide(walkthrough, () => {
-      goToWalkthroughElement(walkthrough[0]);
+      if (walkthrough.length > 0) goToWalkthroughElement(walkthrough[0]);
     });
   } else {
-    console.warn(
-      '[react-native-walkthrough] non-Array argument provided to startWalkthrough'
-    );
+    console.warn('[react-native-walkthrough] non-Array argument provided to startWalkthrough');
   }
 };
 
-const startWalkthroughAtElement = (walkthrough, elementId) => {
+const startWalkthroughAtElement = (walkthrough: GuideType, elementId: string) => {
   if (Array.isArray(walkthrough)) {
     setWalkthroughGuide(walkthrough, () => {
       goToWalkthroughElementWithId(elementId);
     });
   } else {
-    console.warn(
-      '[react-native-walkthrough] non-Array argument provided to startWalkthroughAtElement'
-    );
+    console.warn('[react-native-walkthrough] non-Array argument provided to startWalkthroughAtElement');
   }
 };
 
 const dispatchWalkthroughEvent = (event: string | symbol) => ee.emit(event);
 
-const exitWalkthrough = () => startWalkthrough([{}]);
+const exitWalkthrough = () => startWalkthrough([nullElement]);
 
 WalkthroughProvider.propTypes = {
   children: PropTypes.element,

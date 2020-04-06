@@ -5,16 +5,20 @@ import {TooltipProps} from 'react-native-walkthrough-tooltip';
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
 const HOT_SEC = 500;
 
+type OutcomeType = {event: string | symbol; action: (...args: any[]) => void};
+
 export type ElementType = {
   id: string;
   content: TooltipProps['content'];
   placement: TooltipProps['placement'];
   triggerEvent?: string | symbol;
   tooltipProps?: TooltipProps;
+  onClose?: () => void;
+  possibleOutcomes?: OutcomeType[];
 };
 export type GuideType = ElementType[];
 
-const nullElement = {
+export const nullElement = {
   id: '',
   content: undefined,
   placement: undefined,
@@ -35,7 +39,12 @@ export const WalkthroughContext = React.createContext<ContextValue>({
 interface Props {
   eventEmitter: EventEmitter;
 }
-type State = {currentElement: ElementType; currentGuide: GuideType};
+type State = {
+  currentElement: ElementType;
+  currentGuide: GuideType;
+  currentPossibleOutcomes: OutcomeType[];
+  outcomeListenerStartTimestamp?: number;
+};
 
 class ContextWrapper extends Component<Props, State> {
   constructor(props: Props) {
@@ -45,14 +54,12 @@ class ContextWrapper extends Component<Props, State> {
       currentElement: nullElement,
       currentGuide: [],
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: null,
+      outcomeListenerStartTimestamp: undefined,
     };
   }
 
   getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(
-      element => element.id === this.state.currentElement.id
-    );
+    this.state.currentGuide.findIndex(element => element.id === this.state.currentElement.id);
 
   clearGuide = () => this.setState(safeSetGuide([]));
 
@@ -65,16 +72,18 @@ class ContextWrapper extends Component<Props, State> {
 
     this.setState({
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: null,
+      outcomeListenerStartTimestamp: undefined,
     });
   };
 
-  addTimeoutCheckToOutcomeActions = ({event, action: originalAction}) => ({
+  addTimeoutCheckToOutcomeActions = ({event, action: originalAction}: OutcomeType) => ({
     event,
     action: () => {
       const {outcomeListenerStartTimestamp} = this.state;
 
-      if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
+      if (outcomeListenerStartTimestamp === undefined) {
+        console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
+      } else if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
         this.clearGuide();
       } else {
         originalAction();
@@ -84,27 +93,21 @@ class ContextWrapper extends Component<Props, State> {
     },
   });
 
-  listenForPossibleOutcomes = element => {
+  listenForPossibleOutcomes = (element: ElementType) => {
     const {eventEmitter} = this.props;
     const {possibleOutcomes} = element;
 
     if (possibleOutcomes) {
       if (!Array.isArray(possibleOutcomes)) {
-        console.warn(
-          '[react-native-walkthrough] non-Array value provided to possibleOutcomes'
-        );
+        console.warn('[react-native-walkthrough] non-Array value provided to possibleOutcomes');
       } else {
         this.setState(
           {
-            currentPossibleOutcomes: possibleOutcomes.map(
-              this.addTimeoutCheckToOutcomeActions
-            ),
+            currentPossibleOutcomes: possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions),
             outcomeListenerStartTimestamp: Date.now(),
           },
           () => {
-            this.state.currentPossibleOutcomes.forEach(({event, action}) =>
-              eventEmitter.once(event, action)
-            );
+            this.state.currentPossibleOutcomes.forEach(({event, action}) => eventEmitter.once(event, action));
           }
         );
       }
@@ -160,10 +163,8 @@ class ContextWrapper extends Component<Props, State> {
     }
   };
 
-  goToElementWithId = id => {
-    const elementWithId = this.state.currentGuide.find(
-      element => element.id === id
-    );
+  goToElementWithId = (id: string) => {
+    const elementWithId = this.state.currentGuide.find(element => element.id === id);
 
     if (elementWithId) {
       this.goToElement(elementWithId);
@@ -187,12 +188,7 @@ class ContextWrapper extends Component<Props, State> {
 
   render() {
     return (
-      <WalkthroughContext.Provider
-        value={{
-          ...this.state,
-          goToNext: this.goToNext,
-        }}
-      >
+      <WalkthroughContext.Provider value={{...this.state, goToNext: this.goToNext}}>
         {this.props.children}
       </WalkthroughContext.Provider>
     );
