@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsdx build --format cjs,esm,umd --name react-native-walkthrough",
-    "start": "tsdx watch  --format cjs,esm,umd",
+    "build": "tsdx build --name react-native-walkthrough",
+    "start": "tsdx watch ",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tsdx lint",
     "prepare": "tsdx build"
