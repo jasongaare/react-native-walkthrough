@@ -1,30 +1,30 @@
-import React, {FunctionComponent} from 'react';
+import React, { FunctionComponent } from 'react';
 import PropTypes from 'prop-types';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 
-import ContextWrapper, {ElementType, GuideType, nullElement} from './ContextWrapper';
+import ContextWrapper, { ElementType, GuideType, nullElement } from './ContextWrapper';
 
 const wrapperRef = React.createRef<ContextWrapper>();
 const ee = new EventEmitter();
 
-const WalkthroughProvider: FunctionComponent = ({children}) => (
+const WalkthroughProvider: FunctionComponent = ({ children }) => (
   <ContextWrapper ref={wrapperRef} eventEmitter={ee}>
     {children}
   </ContextWrapper>
 );
 
 const goToWalkthroughElementWithId = (id: string) => {
-  const {current: wrapper} = wrapperRef;
+  const { current: wrapper } = wrapperRef;
   wrapper?.goToElementWithId(id);
 };
 
 const goToWalkthroughElement = (element: ElementType) => {
-  const {current: wrapper} = wrapperRef;
+  const { current: wrapper } = wrapperRef;
   wrapper?.goToElement(element);
 };
 
 const setWalkthroughGuide = (guide: GuideType, setGuide: () => void) => {
-  const {current: wrapper} = wrapperRef;
+  const { current: wrapper } = wrapperRef;
   wrapper?.setGuide(guide, setGuide);
 };
 

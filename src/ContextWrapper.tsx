@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
-import {EventEmitter} from 'events';
-import {TooltipProps} from 'react-native-walkthrough-tooltip';
+import React, { Component } from 'react';
+import { EventEmitter } from 'events';
+import { TooltipProps } from 'react-native-walkthrough-tooltip';
 
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
 const HOT_SEC = 500;
 
-type OutcomeType = {event: string | symbol; action: (...args: any[]) => void};
+type OutcomeType = { event: string | symbol; action: (...args: any[]) => void };
 
 export type ElementType = {
   id: string;
@@ -24,8 +24,8 @@ export const nullElement = {
   placement: undefined,
 };
 
-const safeSetGuide = (element: GuideType) => ({currentGuide: element});
-const safeSetElement = (element: ElementType) => ({currentElement: element});
+const safeSetGuide = (element: GuideType) => ({ currentGuide: element });
+const safeSetElement = (element: ElementType) => ({ currentElement: element });
 
 export type ContextValue = {
   currentElement: ElementType;
@@ -64,9 +64,9 @@ class ContextWrapper extends Component<Props, State> {
   clearGuide = () => this.setState(safeSetGuide([]));
 
   clearCurrentPossibleOutcomes = () => {
-    const {eventEmitter} = this.props;
+    const { eventEmitter } = this.props;
 
-    this.state.currentPossibleOutcomes.forEach(({event, action}) => {
+    this.state.currentPossibleOutcomes.forEach(({ event, action }) => {
       eventEmitter.removeListener(event, action);
     });
 
@@ -76,10 +76,10 @@ class ContextWrapper extends Component<Props, State> {
     });
   };
 
-  addTimeoutCheckToOutcomeActions = ({event, action: originalAction}: OutcomeType) => ({
+  addTimeoutCheckToOutcomeActions = ({ event, action: originalAction }: OutcomeType) => ({
     event,
     action: () => {
-      const {outcomeListenerStartTimestamp} = this.state;
+      const { outcomeListenerStartTimestamp } = this.state;
 
       if (outcomeListenerStartTimestamp === undefined) {
         console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
@@ -94,8 +94,8 @@ class ContextWrapper extends Component<Props, State> {
   });
 
   listenForPossibleOutcomes = (element: ElementType) => {
-    const {eventEmitter} = this.props;
-    const {possibleOutcomes} = element;
+    const { eventEmitter } = this.props;
+    const { possibleOutcomes } = element;
 
     if (possibleOutcomes) {
       if (!Array.isArray(possibleOutcomes)) {
@@ -107,7 +107,7 @@ class ContextWrapper extends Component<Props, State> {
             outcomeListenerStartTimestamp: Date.now(),
           },
           () => {
-            this.state.currentPossibleOutcomes.forEach(({event, action}) => eventEmitter.once(event, action));
+            this.state.currentPossibleOutcomes.forEach(({ event, action }) => eventEmitter.once(event, action));
           }
         );
       }
@@ -135,7 +135,7 @@ class ContextWrapper extends Component<Props, State> {
   };
 
   waitForTrigger = (element: ElementType, triggerEvent: string | symbol) => {
-    const {eventEmitter} = this.props;
+    const { eventEmitter } = this.props;
 
     const waitStart = Date.now();
     const triggerGuide = JSON.stringify(this.state.currentGuide);
@@ -172,7 +172,7 @@ class ContextWrapper extends Component<Props, State> {
   };
 
   goToNext = () => {
-    const {currentElement} = this.state;
+    const { currentElement } = this.state;
     const nextIndex = this.getCurrentElementIndex() + 1;
 
     if (currentElement.possibleOutcomes) {
@@ -188,7 +188,7 @@ class ContextWrapper extends Component<Props, State> {
 
   render() {
     return (
-      <WalkthroughContext.Provider value={{...this.state, goToNext: this.goToNext}}>
+      <WalkthroughContext.Provider value={{ ...this.state, goToNext: this.goToNext }}>
         {this.props.children}
       </WalkthroughContext.Provider>
     );

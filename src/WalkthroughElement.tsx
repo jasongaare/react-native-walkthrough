@@ -1,14 +1,14 @@
-import React, {FunctionComponent, ReactNode, ReactElement} from 'react';
-import Tooltip, {TooltipChildrenContext, TooltipProps} from 'react-native-walkthrough-tooltip';
+import React, { FunctionComponent, ReactNode, ReactElement } from 'react';
+import Tooltip, { TooltipChildrenContext, TooltipProps } from 'react-native-walkthrough-tooltip';
 
-import {WalkthroughContext} from './ContextWrapper';
+import { WalkthroughContext } from './ContextWrapper';
 
 type UseTooltipChildContextT =
   | {
       useTooltipChildContext: true;
-      children: (value: {tooltipDuplicate: boolean}) => ReactNode;
+      children: (value: { tooltipDuplicate: boolean }) => ReactNode;
     }
-  | {useTooltipChildContext?: false; children?: ReactNode};
+  | { useTooltipChildContext?: false; children?: ReactNode };
 
 type Props = {
   id: string;
@@ -23,7 +23,7 @@ const WalkthroughElement: FunctionComponent<Props> = props => {
 
   return (
     <WalkthroughContext.Consumer>
-      {({currentElement, goToNext}) => {
+      {({ currentElement, goToNext }) => {
         const defaultTooltipProps: TooltipProps = {
           useInteractionManager: true,
           isVisible: elementId === currentElement.id,
