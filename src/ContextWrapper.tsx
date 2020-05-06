@@ -1,45 +1,65 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { EventEmitter } from 'events';
+import { TooltipProps } from 'react-native-walkthrough-tooltip';
 
 const WAIT_NO_MORE_TIMEOUT = 1000 * 60 * 10; // 10 minutes
 const HOT_SEC = 500;
 
-const nullElement = {
-  id: null,
-  content: null,
-  placement: null,
+type OutcomeType = { event: string | symbol; action: (...args: any[]) => void };
+
+export type ElementType = {
+  id: string;
+  content: TooltipProps['content'];
+  placement: TooltipProps['placement'];
+  triggerEvent?: string | symbol;
+  tooltipProps?: TooltipProps;
+  onClose?: () => void;
+  possibleOutcomes?: OutcomeType[];
+};
+export type GuideType = ElementType[];
+
+export const nullElement = {
+  id: '',
+  content: undefined,
+  placement: undefined,
 };
 
-const safeSetGuide = element => {
-  return {
-    currentGuide: element,
-  };
+const safeSetGuide = (element: GuideType) => ({ currentGuide: element });
+const safeSetElement = (element: ElementType) => ({ currentElement: element });
+
+export type ContextValue = {
+  currentElement: ElementType;
+  goToNext: () => void;
+};
+export const WalkthroughContext = React.createContext<ContextValue>({
+  currentElement: nullElement,
+  goToNext: () => {},
+});
+
+interface Props {
+  eventEmitter: EventEmitter;
+}
+type State = {
+  currentElement: ElementType;
+  currentGuide: GuideType;
+  currentPossibleOutcomes: OutcomeType[];
+  outcomeListenerStartTimestamp?: number;
 };
 
-const safeSetElement = element => {
-  return {
-    currentElement: element,
-  };
-};
-
-export const WalkthroughContext = React.createContext(nullElement);
-
-class ContextWrapper extends Component {
-  constructor(props) {
+class ContextWrapper extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       currentElement: nullElement,
       currentGuide: [],
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: null,
+      outcomeListenerStartTimestamp: undefined,
     };
   }
 
   getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(
-      element => element.id === this.state.currentElement.id,
-    );
+    this.state.currentGuide.findIndex(element => element.id === this.state.currentElement.id);
 
   clearGuide = () => this.setState(safeSetGuide([]));
 
@@ -52,16 +72,18 @@ class ContextWrapper extends Component {
 
     this.setState({
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: null,
+      outcomeListenerStartTimestamp: undefined,
     });
   };
 
-  addTimeoutCheckToOutcomeActions = ({ event, action: originalAction }) => ({
+  addTimeoutCheckToOutcomeActions = ({ event, action: originalAction }: OutcomeType) => ({
     event,
     action: () => {
       const { outcomeListenerStartTimestamp } = this.state;
 
-      if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
+      if (outcomeListenerStartTimestamp === undefined) {
+        console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
+      } else if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
         this.clearGuide();
       } else {
         originalAction();
@@ -71,28 +93,22 @@ class ContextWrapper extends Component {
     },
   });
 
-  listenForPossibleOutcomes = element => {
+  listenForPossibleOutcomes = (element: ElementType) => {
     const { eventEmitter } = this.props;
     const { possibleOutcomes } = element;
 
     if (possibleOutcomes) {
       if (!Array.isArray(possibleOutcomes)) {
-        console.warn(
-          '[react-native-walkthrough] non-Array value provided to possibleOutcomes',
-        );
+        console.warn('[react-native-walkthrough] non-Array value provided to possibleOutcomes');
       } else {
         this.setState(
           {
-            currentPossibleOutcomes: possibleOutcomes.map(
-              this.addTimeoutCheckToOutcomeActions,
-            ),
+            currentPossibleOutcomes: possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions),
             outcomeListenerStartTimestamp: Date.now(),
           },
           () => {
-            this.state.currentPossibleOutcomes.forEach(({ event, action }) =>
-              eventEmitter.once(event, action),
-            );
-          },
+            this.state.currentPossibleOutcomes.forEach(({ event, action }) => eventEmitter.once(event, action));
+          }
         );
       }
     }
@@ -100,7 +116,7 @@ class ContextWrapper extends Component {
 
   setElementNull = () => this.setState(safeSetElement(nullElement));
 
-  setElement = element => {
+  setElement = (element: ElementType) => {
     if (element.id !== this.state.currentElement.id) {
       // clear previous element
       this.setElementNull();
@@ -113,12 +129,12 @@ class ContextWrapper extends Component {
     }
   };
 
-  setGuide = (guide, callback = () => {}) => {
+  setGuide = (guide: GuideType, callback?: () => void) => {
     this.setElementNull();
     this.setState(safeSetGuide(guide), callback);
   };
 
-  waitForTrigger = element => {
+  waitForTrigger = (element: ElementType, triggerEvent: string | symbol) => {
     const { eventEmitter } = this.props;
 
     const waitStart = Date.now();
@@ -126,7 +142,7 @@ class ContextWrapper extends Component {
 
     this.setElementNull();
 
-    eventEmitter.once(element.triggerEvent, () => {
+    eventEmitter.once(triggerEvent, () => {
       const waitEnd = Date.now();
       const currentGuide = JSON.stringify(this.state.currentGuide);
 
@@ -139,18 +155,16 @@ class ContextWrapper extends Component {
     });
   };
 
-  goToElement = element => {
+  goToElement = (element: ElementType) => {
     if (element.triggerEvent) {
-      this.waitForTrigger(element);
+      this.waitForTrigger(element, element.triggerEvent);
     } else {
       this.setElement(element);
     }
   };
 
-  goToElementWithId = id => {
-    const elementWithId = this.state.currentGuide.find(
-      element => element.id === id,
-    );
+  goToElementWithId = (id: string) => {
+    const elementWithId = this.state.currentGuide.find(element => element.id === id);
 
     if (elementWithId) {
       this.goToElement(elementWithId);
@@ -174,21 +188,11 @@ class ContextWrapper extends Component {
 
   render() {
     return (
-      <WalkthroughContext.Provider
-        value={{
-          ...this.state,
-          goToNext: this.goToNext,
-        }}
-      >
+      <WalkthroughContext.Provider value={{ ...this.state, goToNext: this.goToNext }}>
         {this.props.children}
       </WalkthroughContext.Provider>
     );
   }
 }
-
-ContextWrapper.propTypes = {
-  children: PropTypes.element,
-  eventEmitter: PropTypes.object,
-};
 
 export default ContextWrapper;

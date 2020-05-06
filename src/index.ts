@@ -1,11 +1,13 @@
-import WalkthroughElement from './src/WalkthroughElement';
+import WalkthroughElement from './WalkthroughElement';
 import WalkthroughProvider, {
   dispatchWalkthroughEvent,
   exitWalkthrough,
   goToWalkthroughElementWithId,
   startWalkthrough,
   startWalkthroughAtElement,
-} from './src/WalkthroughProvider';
+} from './WalkthroughProvider';
+
+export * from './ContextWrapper';
 
 export {
   dispatchWalkthroughEvent,

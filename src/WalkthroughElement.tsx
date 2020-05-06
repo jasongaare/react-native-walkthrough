@@ -1,35 +1,41 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Tooltip, {
-  TooltipChildrenContext,
-} from 'react-native-walkthrough-tooltip';
+import React, { FunctionComponent, ReactNode, ReactElement } from 'react';
+import Tooltip, { TooltipChildrenContext, TooltipProps } from 'react-native-walkthrough-tooltip';
 
 import { WalkthroughContext } from './ContextWrapper';
 
-const WalkthroughElement = props => {
+type UseTooltipChildContext =
+  | {
+      useTooltipChildContext: true;
+      children: (value: { tooltipDuplicate: boolean }) => ReactNode;
+    }
+  | { useTooltipChildContext?: false; children?: ReactNode };
+
+type Props = {
+  id: string;
+  content?: ReactElement;
+  tooltipProps?: TooltipProps;
+} & UseTooltipChildContext;
+
+const WalkthroughElement: FunctionComponent<Props> = props => {
   const elementId = props.id;
 
-  const defaultPlacement =
-    React.Children.count(props.children) === 0 ? 'center' : 'top';
+  const defaultPlacement = React.Children.count(props.children) === 0 ? 'center' : 'top';
 
   return (
     <WalkthroughContext.Consumer>
       {({ currentElement, goToNext }) => {
-        const defaultTooltipProps = {
+        const defaultTooltipProps: TooltipProps = {
           useInteractionManager: true,
           isVisible: elementId === currentElement.id,
           content: props.content || currentElement.content,
           placement: currentElement.placement || defaultPlacement,
           onClose: () => {
             goToNext();
-
-            if (typeof currentElement.onClose === 'function') {
-              currentElement.onClose();
-            }
+            currentElement.onClose?.();
           },
         };
 
-        const tooltipProps = {
+        const tooltipProps: TooltipProps = {
           ...defaultTooltipProps,
           ...currentElement.tooltipProps,
           ...props.tooltipProps,
@@ -38,9 +44,7 @@ const WalkthroughElement = props => {
         return (
           <Tooltip {...tooltipProps}>
             {props.useTooltipChildContext ? (
-              <TooltipChildrenContext.Consumer>
-                {props.children}
-              </TooltipChildrenContext.Consumer>
+              <TooltipChildrenContext.Consumer>{props.children}</TooltipChildrenContext.Consumer>
             ) : (
               props.children
             )}
@@ -52,17 +56,9 @@ const WalkthroughElement = props => {
 };
 
 WalkthroughElement.defaultProps = {
-  content: null,
-  tooltipProps: {},
+  content: undefined,
+  tooltipProps: undefined,
   useTooltipChildContext: false,
-};
-
-WalkthroughElement.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  content: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  id: PropTypes.string.isRequired,
-  tooltipProps: PropTypes.object,
-  useTooltipChildContext: PropTypes.bool,
 };
 
 export default WalkthroughElement;
