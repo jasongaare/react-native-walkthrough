@@ -1,6 +1,7 @@
 .babelrc
 .eslintrc.js
 .prettierrc
+example
 jest.config.js
 tsconfig.json
 yarn.lock
