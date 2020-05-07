@@ -24,7 +24,7 @@ export const nullElement = {
   placement: undefined,
 };
 
-const safeSetGuide = (element: GuideType) => ({ currentGuide: element });
+const safeSetGuide = (element: GuideType) => ({ currentGuide: element, currentIndex: 0 });
 const safeSetElement = (element: ElementType) => ({ currentElement: element });
 
 export type ContextValue = {
@@ -44,6 +44,7 @@ type State = {
   currentGuide: GuideType;
   currentPossibleOutcomes: OutcomeType[];
   outcomeListenerStartTimestamp?: number;
+  currentIndex: number;
 };
 
 class ContextWrapper extends Component<Props, State> {
@@ -55,11 +56,9 @@ class ContextWrapper extends Component<Props, State> {
       currentGuide: [],
       currentPossibleOutcomes: [],
       outcomeListenerStartTimestamp: undefined,
+      currentIndex: 0,
     };
   }
-
-  getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(element => element.id === this.state.currentElement.id);
 
   clearGuide = () => this.setState(safeSetGuide([]));
 
@@ -117,16 +116,14 @@ class ContextWrapper extends Component<Props, State> {
   setElementNull = () => this.setState(safeSetElement(nullElement));
 
   setElement = (element: ElementType) => {
-    if (element.id !== this.state.currentElement.id) {
-      // clear previous element
-      this.setElementNull();
-      this.clearCurrentPossibleOutcomes();
+    // clear previous element
+    this.setElementNull();
+    this.clearCurrentPossibleOutcomes();
 
-      // after a hot sec, set current element
-      setTimeout(() => {
-        this.setState(safeSetElement(element));
-      }, HOT_SEC);
-    }
+    // after a hot sec, set current element
+    setTimeout(() => {
+      this.setState(safeSetElement(element));
+    }, HOT_SEC);
   };
 
   setGuide = (guide: GuideType, callback?: () => void) => {
@@ -172,13 +169,14 @@ class ContextWrapper extends Component<Props, State> {
   };
 
   goToNext = () => {
-    const { currentElement } = this.state;
-    const nextIndex = this.getCurrentElementIndex() + 1;
+    const { currentElement, currentIndex } = this.state;
+    const nextIndex = currentIndex + 1;
 
     if (currentElement.possibleOutcomes) {
       this.listenForPossibleOutcomes(currentElement);
       this.setElementNull();
     } else if (nextIndex < this.state.currentGuide.length) {
+      this.setState({ currentIndex: nextIndex });
       this.goToElement(this.state.currentGuide[nextIndex]);
     } else {
       this.setElementNull();
