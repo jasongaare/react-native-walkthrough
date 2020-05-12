@@ -1,6 +1,7 @@
 .babelrc
 .eslintrc.js
 .prettierrc
+.vscode
 example
 jest.config.js
 tsconfig.json
