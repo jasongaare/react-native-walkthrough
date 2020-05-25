@@ -161,7 +161,11 @@ class ContextWrapper extends Component<Props, State> {
     });
   };
 
-  goToElement = (element: ElementType) => {
+  private goToElementAt = (elementIndex: number) => {
+    if (elementIndex < 0) return;
+    const element = this.state.currentGuide[elementIndex];
+    if (element == null) return;
+    this.setState({ currentIndex: elementIndex });
     if (element.triggerEvent) {
       this.waitForTrigger(element, element.triggerEvent);
     } else {
@@ -169,12 +173,14 @@ class ContextWrapper extends Component<Props, State> {
     }
   };
 
-  goToElementWithId = (id: string) => {
-    const elementWithId = this.state.currentGuide.find(element => element.id === id);
+  goToElement = (element: ElementType) => {
+    const elementIndex = this.state.currentGuide.indexOf(element);
+    this.goToElementAt(elementIndex);
+  };
 
-    if (elementWithId) {
-      this.goToElement(elementWithId);
-    }
+  goToElementWithId = (id: string) => {
+    const elementIndex = this.state.currentGuide.findIndex(element => element.id === id);
+    this.goToElementAt(elementIndex);
   };
 
   goToNext = () => {
@@ -185,8 +191,7 @@ class ContextWrapper extends Component<Props, State> {
       this.listenForPossibleOutcomes(currentElement);
       this.setElementNull();
     } else if (nextIndex < this.state.currentGuide.length) {
-      this.setState({ currentIndex: nextIndex });
-      this.goToElement(this.state.currentGuide[nextIndex]);
+      this.goToElementAt(nextIndex);
     } else {
       this.setElementNull();
       this.clearGuide();
