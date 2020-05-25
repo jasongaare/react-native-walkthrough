@@ -24,10 +24,10 @@ export const nullElement = {
   placement: undefined,
 };
 
-const safeSetGuide = (element: GuideType, onFinish?: () => void) => ({
+const safeSetGuide = (element: GuideType, onWalkthroughComplete?: () => void) => ({
   currentGuide: element,
   currentIndex: 0,
-  onFinish: onFinish,
+  onWalkthroughComplete: onWalkthroughComplete,
 });
 const safeSetElement = (element: ElementType) => ({ currentElement: element });
 
@@ -37,7 +37,9 @@ export type ContextValue = {
 };
 export const WalkthroughContext = React.createContext<ContextValue>({
   currentElement: nullElement,
-  goToNext: () => {},
+  goToNext: () => {
+    /* fallback */
+  },
 });
 
 interface Props {
@@ -49,7 +51,7 @@ type State = {
   currentPossibleOutcomes: OutcomeType[];
   outcomeListenerStartTimestamp?: number;
   currentIndex: number;
-  onFinish?: () => void;
+  onWalkthroughComplete?: () => void;
 };
 
 class ContextWrapper extends Component<Props, State> {
@@ -62,12 +64,12 @@ class ContextWrapper extends Component<Props, State> {
       currentPossibleOutcomes: [],
       outcomeListenerStartTimestamp: undefined,
       currentIndex: 0,
-      onFinish: undefined,
+      onWalkthroughComplete: undefined,
     };
   }
 
   clearGuide = () => {
-    this.state.onFinish?.();
+    this.state.onWalkthroughComplete?.();
     this.setState(safeSetGuide([]));
   };
 
@@ -135,8 +137,8 @@ class ContextWrapper extends Component<Props, State> {
     }, HOT_SEC);
   };
 
-  setGuideAsync = (guide: GuideType, onFinish?: () => void): Promise<void> =>
-    new Promise(resolve => this.setState(safeSetGuide(guide, onFinish), resolve));
+  setGuideAsync = (guide: GuideType, onWalkthroughComplete?: () => void): Promise<void> =>
+    new Promise(resolve => this.setState(safeSetGuide(guide, onWalkthroughComplete), resolve));
 
   waitForTrigger = (element: ElementType, triggerEvent: string | symbol) => {
     const { eventEmitter } = this.props;

@@ -23,14 +23,14 @@ const goToWalkthroughElement = (element: ElementType) => {
   wrapper?.goToElement(element);
 };
 
-const setWalkthroughGuide = (guide: GuideType, onFinish?: () => void) => {
+const setWalkthroughGuide = (guide: GuideType, onWalkthroughComplete?: () => void) => {
   const { current: wrapper } = wrapperRef;
-  return wrapper?.setGuideAsync(guide, onFinish);
+  return wrapper?.setGuideAsync(guide, onWalkthroughComplete);
 };
 
-const startWalkthrough = (walkthrough: GuideType, onFinish?: () => void) => {
+const startWalkthrough = (walkthrough: GuideType, onWalkthroughComplete?: () => void) => {
   if (Array.isArray(walkthrough)) {
-    setWalkthroughGuide(walkthrough, onFinish)?.then(() => goToWalkthroughElement(walkthrough[0]));
+    setWalkthroughGuide(walkthrough, onWalkthroughComplete)?.then(() => goToWalkthroughElement(walkthrough[0]));
   } else {
     console.warn('[react-native-walkthrough] non-Array argument provided to startWalkthrough');
   }
