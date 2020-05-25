@@ -67,14 +67,18 @@ This library utilizes [`react-native-walkthrough-tooltip`](https://github.com/ja
 #### `startWalkthrough`
 
  Function that accepts a walkthrough guide array and begins the walkthrough by setting the current element as the first element from the walkthrough guide array. [Learn about walkthrough guides here](#creating-a-walkthrough-guide)
+The function has an optional parameter `onWalkthroughComplete` that will be executed when the walkthrough is exited.
+This may be either after the last element was visited or whenever a walkthrough timeout occurs.
 
 ```js
 import { startWalkthrough } from 'react-native-walkthrough';
 
 import profileWalkthrough from '../guides/profileWalkthrough';
 
+const completionHandler = () => { console.log('Walkthrough finished'); };
+
 <TouchableOpacity
-  onPress={() => startWalkthrough(profileWalkthrough)}
+  onPress={() => startWalkthrough(profileWalkthrough, completionHandler)}
 >
   <Text>{"Show me how to view a profile"}</Text>
 </TouchableOpacity>
