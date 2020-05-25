@@ -49,7 +49,6 @@ type State = {
   currentElement: ElementType;
   currentGuide: GuideType;
   currentPossibleOutcomes: OutcomeType[];
-  outcomeListenerStartTimestamp?: number;
   currentIndex: number;
   onWalkthroughComplete?: () => void;
 };
@@ -62,7 +61,6 @@ class ContextWrapper extends Component<Props, State> {
       currentElement: nullElement,
       currentGuide: [],
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: undefined,
       currentIndex: 0,
       onWalkthroughComplete: undefined,
     };
@@ -80,25 +78,21 @@ class ContextWrapper extends Component<Props, State> {
       eventEmitter.removeListener(event, action);
     });
 
-    this.setState({
-      currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: undefined,
-    });
+    this.setState({ currentPossibleOutcomes: [] });
   };
 
-  addTimeoutCheckToOutcomeActions = ({ event, action: originalAction }: OutcomeType) => ({
+  addTimeoutCheckToOutcomeActions = (outcomeListenerStartTimestamp: number) => ({
+    event,
+    action: originalAction,
+  }: OutcomeType) => ({
     event,
     action: () => {
-      const { outcomeListenerStartTimestamp } = this.state;
-
-      if (outcomeListenerStartTimestamp === undefined) {
-        console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
-      } else if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
+      if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
         this.clearGuide();
       } else {
         originalAction();
       }
-
+      // remove all if one of them fired
       this.clearCurrentPossibleOutcomes();
     },
   });
@@ -111,14 +105,9 @@ class ContextWrapper extends Component<Props, State> {
       if (!Array.isArray(possibleOutcomes)) {
         console.warn('[react-native-walkthrough] non-Array value provided to possibleOutcomes');
       } else {
-        this.setState(
-          {
-            currentPossibleOutcomes: possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions),
-            outcomeListenerStartTimestamp: Date.now(),
-          },
-          () => {
-            this.state.currentPossibleOutcomes.forEach(({ event, action }) => eventEmitter.once(event, action));
-          }
+        const wrapped = possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions(Date.now()));
+        this.setState({ currentPossibleOutcomes: wrapped }, () =>
+          wrapped.forEach(({ event, action }) => eventEmitter.once(event, action))
         );
       }
     }
