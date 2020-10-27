@@ -24,7 +24,11 @@ export const nullElement = {
   placement: undefined,
 };
 
-const safeSetGuide = (element: GuideType) => ({ currentGuide: element });
+const safeSetGuide = (element: GuideType, onWalkthroughComplete?: () => void) => ({
+  currentGuide: element,
+  currentIndex: 0,
+  onWalkthroughComplete: onWalkthroughComplete,
+});
 const safeSetElement = (element: ElementType) => ({ currentElement: element });
 
 export type ContextValue = {
@@ -33,7 +37,9 @@ export type ContextValue = {
 };
 export const WalkthroughContext = React.createContext<ContextValue>({
   currentElement: nullElement,
-  goToNext: () => {},
+  goToNext: () => {
+    /* fallback */
+  },
 });
 
 interface Props {
@@ -43,7 +49,8 @@ type State = {
   currentElement: ElementType;
   currentGuide: GuideType;
   currentPossibleOutcomes: OutcomeType[];
-  outcomeListenerStartTimestamp?: number;
+  currentIndex: number;
+  onWalkthroughComplete?: () => void;
 };
 
 class ContextWrapper extends Component<Props, State> {
@@ -54,14 +61,15 @@ class ContextWrapper extends Component<Props, State> {
       currentElement: nullElement,
       currentGuide: [],
       currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: undefined,
+      currentIndex: 0,
+      onWalkthroughComplete: undefined,
     };
   }
 
-  getCurrentElementIndex = () =>
-    this.state.currentGuide.findIndex(element => element.id === this.state.currentElement.id);
-
-  clearGuide = () => this.setState(safeSetGuide([]));
+  clearGuide = () => {
+    this.state.onWalkthroughComplete?.();
+    this.setState(safeSetGuide([]));
+  };
 
   clearCurrentPossibleOutcomes = () => {
     const { eventEmitter } = this.props;
@@ -70,25 +78,21 @@ class ContextWrapper extends Component<Props, State> {
       eventEmitter.removeListener(event, action);
     });
 
-    this.setState({
-      currentPossibleOutcomes: [],
-      outcomeListenerStartTimestamp: undefined,
-    });
+    this.setState({ currentPossibleOutcomes: [] });
   };
 
-  addTimeoutCheckToOutcomeActions = ({ event, action: originalAction }: OutcomeType) => ({
+  addTimeoutCheckToOutcomeActions = (outcomeListenerStartTimestamp: number) => ({
+    event,
+    action: originalAction,
+  }: OutcomeType) => ({
     event,
     action: () => {
-      const { outcomeListenerStartTimestamp } = this.state;
-
-      if (outcomeListenerStartTimestamp === undefined) {
-        console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
-      } else if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
+      if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
         this.clearGuide();
       } else {
         originalAction();
       }
-
+      // remove all if one of them fired
       this.clearCurrentPossibleOutcomes();
     },
   });
@@ -101,14 +105,9 @@ class ContextWrapper extends Component<Props, State> {
       if (!Array.isArray(possibleOutcomes)) {
         console.warn('[react-native-walkthrough] non-Array value provided to possibleOutcomes');
       } else {
-        this.setState(
-          {
-            currentPossibleOutcomes: possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions),
-            outcomeListenerStartTimestamp: Date.now(),
-          },
-          () => {
-            this.state.currentPossibleOutcomes.forEach(({ event, action }) => eventEmitter.once(event, action));
-          }
+        const wrapped = possibleOutcomes.map(this.addTimeoutCheckToOutcomeActions(Date.now()));
+        this.setState({ currentPossibleOutcomes: wrapped }, () =>
+          wrapped.forEach(({ event, action }) => eventEmitter.once(event, action))
         );
       }
     }
@@ -117,22 +116,18 @@ class ContextWrapper extends Component<Props, State> {
   setElementNull = () => this.setState(safeSetElement(nullElement));
 
   setElement = (element: ElementType) => {
-    if (element.id !== this.state.currentElement.id) {
-      // clear previous element
-      this.setElementNull();
-      this.clearCurrentPossibleOutcomes();
-
-      // after a hot sec, set current element
-      setTimeout(() => {
-        this.setState(safeSetElement(element));
-      }, HOT_SEC);
-    }
-  };
-
-  setGuide = (guide: GuideType, callback?: () => void) => {
+    // clear previous element
     this.setElementNull();
-    this.setState(safeSetGuide(guide), callback);
+    this.clearCurrentPossibleOutcomes();
+
+    // after a hot sec, set current element
+    setTimeout(() => {
+      this.setState(safeSetElement(element));
+    }, HOT_SEC);
   };
+
+  setGuideAsync = (guide: GuideType, onWalkthroughComplete?: () => void): Promise<void> =>
+    new Promise(resolve => this.setState(safeSetGuide(guide, onWalkthroughComplete), resolve));
 
   waitForTrigger = (element: ElementType, triggerEvent: string | symbol) => {
     const { eventEmitter } = this.props;
@@ -155,7 +150,11 @@ class ContextWrapper extends Component<Props, State> {
     });
   };
 
-  goToElement = (element: ElementType) => {
+  private goToElementAt = (elementIndex: number) => {
+    if (elementIndex < 0) return;
+    const element = this.state.currentGuide[elementIndex];
+    if (element == null) return;
+    this.setState({ currentIndex: elementIndex });
     if (element.triggerEvent) {
       this.waitForTrigger(element, element.triggerEvent);
     } else {
@@ -163,23 +162,25 @@ class ContextWrapper extends Component<Props, State> {
     }
   };
 
-  goToElementWithId = (id: string) => {
-    const elementWithId = this.state.currentGuide.find(element => element.id === id);
+  goToElement = (element: ElementType) => {
+    const elementIndex = this.state.currentGuide.indexOf(element);
+    this.goToElementAt(elementIndex);
+  };
 
-    if (elementWithId) {
-      this.goToElement(elementWithId);
-    }
+  goToElementWithId = (id: string) => {
+    const elementIndex = this.state.currentGuide.findIndex(element => element.id === id);
+    this.goToElementAt(elementIndex);
   };
 
   goToNext = () => {
-    const { currentElement } = this.state;
-    const nextIndex = this.getCurrentElementIndex() + 1;
+    const { currentElement, currentIndex } = this.state;
+    const nextIndex = currentIndex + 1;
 
     if (currentElement.possibleOutcomes) {
       this.listenForPossibleOutcomes(currentElement);
       this.setElementNull();
     } else if (nextIndex < this.state.currentGuide.length) {
-      this.goToElement(this.state.currentGuide[nextIndex]);
+      this.goToElementAt(nextIndex);
     } else {
       this.setElementNull();
       this.clearGuide();
