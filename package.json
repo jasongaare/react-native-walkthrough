@@ -1,6 +1,6 @@
 {
   "name": "react-native-walkthrough",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A lightweight walkthrough library for React Native utilizing React's Context API",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
