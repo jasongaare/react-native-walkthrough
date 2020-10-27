@@ -10,7 +10,7 @@ type OutcomeType = { event: string | symbol; action: (...args: any[]) => void };
 export type ElementType = {
   id: string;
   content: TooltipProps['content'];
-  placement: TooltipProps['placement'];
+  placement?: TooltipProps['placement'];
   triggerEvent?: string | symbol;
   tooltipProps?: TooltipProps;
   onClose?: () => void;
