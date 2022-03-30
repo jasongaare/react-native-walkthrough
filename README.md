@@ -160,6 +160,7 @@ export default [
 |---|----|-----|----|
 |content|function/Element| YES | This is the view displayed in the tooltip popover bubble |
 |id|string|YES|id string that matches the corresponding WalkthroughElement|
+|listenForOutcomesWhileDisplayed|bool|NO | Listens for possible outcomes while the tooltip is displayed
 |placement|string|NO | Determines placement of tooltip in relation to the element it is wrapping
 |possibleOutcomes|array|NO|An array of objects with keys (`event`, `action`) that creates event listeners for multiple events to provide the ability to have an outcome tree that responds to a user's actions (listens to events dispatched via `dispatchWalkthroughEvent`|
 |tooltipProps|object|NO|additional props to customize the tooltip functionality and style
