@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, PropsWithChildren } from 'react';
 import PropTypes from 'prop-types';
 import { EventEmitter } from 'events';
 
@@ -7,8 +7,8 @@ import ContextWrapper, { ElementType, GuideType, nullElement } from './ContextWr
 const wrapperRef = React.createRef<ContextWrapper>();
 const ee = new EventEmitter();
 
-const WalkthroughProvider: FunctionComponent = ({ children }) => (
-  <ContextWrapper ref={wrapperRef} eventEmitter={ee}>
+const WalkthroughProvider: FunctionComponent<PropsWithChildren<{ debug?: boolean }>> = ({ debug, children }) => (
+  <ContextWrapper ref={wrapperRef} eventEmitter={ee} debug={debug}>
     {children}
   </ContextWrapper>
 );

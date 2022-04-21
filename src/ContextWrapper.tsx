@@ -15,6 +15,7 @@ export type ElementType = {
   tooltipProps?: TooltipProps;
   onClose?: () => void;
   possibleOutcomes?: OutcomeType[];
+  listenForOutcomesWhileDisplayed?: boolean;
 };
 export type GuideType = ElementType[];
 
@@ -37,6 +38,7 @@ export const WalkthroughContext = React.createContext<ContextValue>({
 });
 
 interface Props {
+  debug?: boolean;
   eventEmitter: EventEmitter;
 }
 type State = {
@@ -65,6 +67,11 @@ class ContextWrapper extends Component<Props, State> {
 
   clearCurrentPossibleOutcomes = () => {
     const { eventEmitter } = this.props;
+    if (this.props.debug) {
+      console.debug(
+        `[react-native-walkthrough] clearing ${this.state.currentPossibleOutcomes.length} possible outcomes`
+      );
+    }
 
     this.state.currentPossibleOutcomes.forEach(({ event, action }) => {
       eventEmitter.removeListener(event, action);
@@ -84,6 +91,11 @@ class ContextWrapper extends Component<Props, State> {
       if (outcomeListenerStartTimestamp === undefined) {
         console.warn('[react-native-walkthrough] outcomeListenerStartTimestamp not initialized');
       } else if (Date.now() - outcomeListenerStartTimestamp >= WAIT_NO_MORE_TIMEOUT) {
+        if (this.props.debug) {
+          console.debug(
+            `[react-native-walkthrough] clearing guide because of walkthrough timeout of ${WAIT_NO_MORE_TIMEOUT}ms`
+          );
+        }
         this.clearGuide();
       } else {
         originalAction();
@@ -131,6 +143,13 @@ class ContextWrapper extends Component<Props, State> {
 
   setGuide = (guide: GuideType, callback?: () => void) => {
     this.setElementNull();
+    if (__DEV__) {
+      const duplicateElements = guide.filter((element, index) => guide.indexOf(element) !== index);
+      if (duplicateElements.length > 0) {
+        const duplicateElementIds = duplicateElements.map(element => element.id).join(', ');
+        console.warn(`[react-native-walkthrough] guide uses duplicated element IDs: ${duplicateElementIds}`);
+      }
+    }
     this.setState(safeSetGuide(guide), callback);
   };
 
@@ -145,6 +164,9 @@ class ContextWrapper extends Component<Props, State> {
     eventEmitter.once(triggerEvent, () => {
       const waitEnd = Date.now();
       const currentGuide = JSON.stringify(this.state.currentGuide);
+      if (this.props.debug) {
+        console.debug(`[react-native-walkthrough] triggering for ${element.id} from ${String(triggerEvent)}`);
+      }
 
       if (waitEnd - waitStart >= WAIT_NO_MORE_TIMEOUT) {
         this.clearGuide();
@@ -167,7 +189,12 @@ class ContextWrapper extends Component<Props, State> {
     const elementWithId = this.state.currentGuide.find(element => element.id === id);
 
     if (elementWithId) {
+      if (this.props.debug) {
+        console.debug(`[react-native-walkthrough] moving to element with ID ${id}`);
+      }
       this.goToElement(elementWithId);
+    } else if (this.props.debug) {
+      console.debug(`[react-native-walkthrough] could not find element with ID ${id}`);
     }
   };
 
@@ -176,11 +203,32 @@ class ContextWrapper extends Component<Props, State> {
     const nextIndex = this.getCurrentElementIndex() + 1;
 
     if (currentElement.possibleOutcomes) {
-      this.listenForPossibleOutcomes(currentElement);
+      if (this.props.debug) {
+        console.debug(`[react-native-walkthrough] current element has possible outcomes, listening...`);
+      }
+      if (!currentElement.listenForOutcomesWhileDisplayed) {
+        // Only listen if we are not already listening...
+        this.listenForPossibleOutcomes(currentElement);
+      }
       this.setElementNull();
     } else if (nextIndex < this.state.currentGuide.length) {
-      this.goToElement(this.state.currentGuide[nextIndex]);
+      if (this.props.debug) {
+        console.debug(`[react-native-walkthrough] moving to next element at index ${nextIndex}`);
+      }
+      const nextElement = this.state.currentGuide[nextIndex];
+      this.goToElement(nextElement);
+      if (nextElement.listenForOutcomesWhileDisplayed && nextElement.possibleOutcomes) {
+        if (this.props.debug) {
+          console.debug(
+            `[react-native-walkthrough] next element has ${nextElement.possibleOutcomes.length} possible outcomes, listening...`
+          );
+        }
+        this.listenForPossibleOutcomes(nextElement);
+      }
     } else {
+      if (this.props.debug) {
+        console.debug(`[react-native-walkthrough] no more elements, exiting walkthrough`);
+      }
       this.setElementNull();
       this.clearGuide();
     }
