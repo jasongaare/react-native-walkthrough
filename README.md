@@ -164,6 +164,6 @@ export default [
 |possibleOutcomes|array|NO|An array of objects with keys (`event`, `action`) that creates event listeners for multiple events to provide the ability to have an outcome tree that responds to a user's actions (listens to events dispatched via `dispatchWalkthroughEvent`|
 |tooltipProps|object|NO|additional props to customize the tooltip functionality and style
 |triggerEvent|string|NO|string event id, this element will not appear until the triggerEvent is dispatched via `dispatchWalkthroughEvent`
-
+|delay|number|NO|Milliseconds before WalkthroughElement is visible. (Default: 500)
 
 > To learn more about `placement` options and all the options for `tooltipProps` view the [`react-native-walkthrough-tooltip` README](https://github.com/jasongaare/react-native-walkthrough-tooltip#props)

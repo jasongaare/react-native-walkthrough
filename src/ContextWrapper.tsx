@@ -15,6 +15,7 @@ export type ElementType = {
   tooltipProps?: TooltipProps;
   onClose?: () => void;
   possibleOutcomes?: OutcomeType[];
+  delay?: number;
 };
 export type GuideType = ElementType[];
 
@@ -125,7 +126,7 @@ class ContextWrapper extends Component<Props, State> {
       // after a hot sec, set current element
       setTimeout(() => {
         this.setState(safeSetElement(element));
-      }, HOT_SEC);
+      }, element.delay !== undefined ? element.delay : HOT_SEC);
     }
   };
 
